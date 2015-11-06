@@ -1,0 +1,25 @@
+.background {
+    -fx-background-color: #e0e0e0;
+}
+
+.button {
+    /*-fx-padding: 5 22 5 22;*/
+    /*-fx-border-color: #e2e2e2;*/
+    /*-fx-border-width: 2;*/
+    /*-fx-background-radius: 0;*/
+    -fx-background-color: #BDC3C7;
+    -fx-text-fill: #f5f5f5;
+}
+
+.button:pressed {
+    -fx-background-color: #7F8C8D;
+}
+
+#equalsButton {
+    -fx-background-color: #95A5A6;
+}
+
+.text-field {
+    -fx-background-color: #ECF0F1;
+    -fx-text-fill: #2C3E50;
+}
