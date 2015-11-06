@@ -110,6 +110,10 @@ public class Controller implements Initializable {
                 activeNumber.setValue(activeNumber.getValue() * -1);
                 showNumber(activeNumber);
                 break;
+            case "a^1/2":
+                activeNumber.setValue(Math.pow(activeNumber.getValue(), 0.5));
+                showNumber(activeNumber);
+                break;
             case "/":
             case "*":
             case "-":
@@ -130,6 +134,12 @@ public class Controller implements Initializable {
                 result.setValue(0);
                 break;
         }
+
+        if (Double.isNaN(activeNumber.getValue())) {
+            activeNumber.setValue(0);
+            textField.setText("Invalid input");
+        }
+
 //        System.out.println("active");
 //        System.out.println(activeNumber.getValue());
 //        System.out.println("result");
@@ -141,6 +151,7 @@ public class Controller implements Initializable {
         textField.setText(fmt(number.getValue()));
     }
 
+    // calculates result between two numbers with operation saved
     private void calculateResult() {
         switch (savedOperation.getValue()) {
             case "/":
