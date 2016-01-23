@@ -7,6 +7,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -69,9 +73,10 @@ public class Controller implements Initializable {
     private BooleanProperty isDecimal = new SimpleBooleanProperty();
     private BooleanProperty withPoint = new SimpleBooleanProperty();
     private StringProperty savedOperation = new SimpleStringProperty();
+    private boolean apiModeOn = true;
 
     @FXML
-    private void handleButtonAction(ActionEvent e) {
+    private void handleButtonAction(ActionEvent e) throws IOException {
 
         Button btn = (Button) e.getSource();
 
@@ -111,7 +116,8 @@ public class Controller implements Initializable {
                 showNumber(activeNumber);
                 break;
             case "a^1/2":
-                activeNumber.setValue(Math.pow(activeNumber.getValue(), 0.5));
+                if (apiModeOn) activeNumber.setValue(getApiResult("square_root"));
+                else activeNumber.setValue(Math.pow(activeNumber.getValue(), 0.5));
                 showNumber(activeNumber);
                 break;
             case "/":
@@ -152,21 +158,27 @@ public class Controller implements Initializable {
     }
 
     // calculates result between two numbers with operation saved
-    private void calculateResult() {
+    private void calculateResult() throws IOException {
+
         switch (savedOperation.getValue()) {
             case "/":
-                result.setValue(result.getValue() / activeNumber.getValue());
+                if (apiModeOn) result.setValue(getApiResult("division"));
+                else result.setValue(result.getValue() / activeNumber.getValue());
                 break;
             case "*":
-                result.setValue(result.getValue() * activeNumber.getValue());
+                if (apiModeOn) result.setValue(getApiResult("multiplication"));
+                else result.setValue(result.getValue() * activeNumber.getValue());
                 break;
             case "-":
-                result.setValue(result.getValue() - activeNumber.getValue());
+                if (apiModeOn) result.setValue(getApiResult("subtraction"));
+                else result.setValue(result.getValue() - activeNumber.getValue());
                 break;
             case "+":
-                result.setValue(result.getValue() + activeNumber.getValue());
+                if (apiModeOn) result.setValue(getApiResult("addition"));
+                else result.setValue(result.getValue() + activeNumber.getValue());
                 break;
         }
+
         savedOperation.setValue("my_null");
     }
 
@@ -185,5 +197,25 @@ public class Controller implements Initializable {
             return String.format("%d", (long) d);
         else
             return String.format("%s", d);
+    }
+
+    private double getApiResult(String operation_str) throws IOException {
+        String n1_str = Double.toString(result.getValue());
+        String n2_str = Double.toString(activeNumber.getValue());
+        String url = "http://localhost:3000/calculator/" + operation_str + "?n1=" + n1_str + "&n2=" + n2_str;
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + con.getResponseCode());
+
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            String request_result = in.readLine();
+            System.out.println(result);
+            return Double.parseDouble(request_result);
+        }
     }
 }
